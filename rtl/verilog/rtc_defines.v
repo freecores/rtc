@@ -44,6 +44,9 @@
 // CVS Revision History
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/09/18 22:55:39  lampret
+// Changed rtc into rtc_top. Changed defines.v into rtc_defines.v. Fixed a bug with two defines for alarms.
+//
 // Revision 1.1  2001/08/21 12:53:11  lampret
 // Changed directory structure, uniquified defines and changed design's port names.
 //
@@ -54,7 +57,6 @@
 // Added initial RTL and test benches. There are still some issues with these files.
 //
 //
-
 //
 // Undefine this one if you don't want to remove RTC block from your design
 // but you also don't need it. When it is undefined, all RTC ports still
