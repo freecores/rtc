@@ -46,9 +46,12 @@
 // CVS Revision History
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/06/05 07:45:43  lampret
+// Added initial RTL and test benches. There are still some issues with these files.
+//
 //
 
-`include "timescale.vh"
+//`include "timescale.vh"
 `include "defines.vh"
 
 module rtc(
@@ -61,7 +64,7 @@ module rtc(
 );
 
 parameter dw = 32;
-parameter aw = 16;
+parameter aw = `RTC_ADDRHH+1;
 
 //
 // WISHBONE Interface
@@ -200,13 +203,29 @@ wire		hi_clk;		// Hi freq clock
 wire		lo_clk;		// Lo freq clock
 wire		alarm;		// Alarm condition
 wire		leapyear;	// Leap year
+wire		full_decoding;  // Full address decoding qualification
 reg	[dw-1:0] dat_o;		// Data out
 
 //
-// All WISHBONE transfer terminations are successful
+// All WISHBONE transfer terminations are successful except when:
+// a) full address decoding is enabled and address doesn't match
+//    any of the RTC registers
+// b) sel_i evaluation is enabled and one of the sel_i inputs is zero
 //
-assign ack_o = cyc_i & stb_i;
+assign ack_o = cyc_i & stb_i & !err_o;
+`ifdef FULL_DECODE
+`ifdef STRICT_32BIT_ACCESS
+assign err_o = cyc_i & stb_i & !full_decoding | (sel_i != 4'b1111);
+`else
+assign err_o = cyc_i & stb_i & !full_decoding;
+`endif
+`else
+`ifdef STRICT_32BIT_ACCESS
+assign err_o = (sel_i != 4'b1111);
+`else
 assign err_o = 1'b0;
+`endif
+`endif
 
 //
 // Hi freq clock is selected by RRTC_CTRL[ECLK]. When it is set,
@@ -222,13 +241,23 @@ assign hi_clk = rrtc_ctrl[`RRTC_CTRL_ECLK] ? rtc_clk : clk_i;
 assign lo_clk = rrtc_ctrl[`RRTC_CTRL_EN] ? div_clk : clk_i;
 
 //
+// Full address decoder
+//
+`ifdef FULL_DECODE
+assign full_decoding = (adr_i[`RTC_ADDRHH:`RTC_ADDRHL] == {`RTC_ADDRHH-`RTC_ADDRHL+1{1'b0}}) &
+                        (adr_i[`RTC_ADDRLH:`RTC_ADDRLL] == {`RTC_ADDRLH-`RTC_ADDRLL+1{1'b0}});
+`else
+assign full_decoding = 1'b1;
+`endif
+
+//
 // RTC registers address decoder
 //
-assign rrtc_time_sel = cyc_i & stb_i & (adr_i[`RTCOFS_BITS] == `RRTC_TIME);
-assign rrtc_date_sel = cyc_i & stb_i & (adr_i[`RTCOFS_BITS] == `RRTC_DATE);
-assign rrtc_talrm_sel = cyc_i & stb_i & (adr_i[`RTCOFS_BITS] == `RRTC_TALRM);
-assign rrtc_dalrm_sel = cyc_i & stb_i & (adr_i[`RTCOFS_BITS] == `RRTC_DALRM);
-assign rrtc_ctrl_sel = cyc_i & stb_i & (adr_i[`RTCOFS_BITS] == `RRTC_CTRL);
+assign rrtc_time_sel = cyc_i & stb_i & (adr_i[`RTCOFS_BITS] == `RRTC_TIME) & full_decoding;
+assign rrtc_date_sel = cyc_i & stb_i & (adr_i[`RTCOFS_BITS] == `RRTC_DATE) & full_decoding;
+assign rrtc_talrm_sel = cyc_i & stb_i & (adr_i[`RTCOFS_BITS] == `RRTC_TALRM) & full_decoding;
+assign rrtc_dalrm_sel = cyc_i & stb_i & (adr_i[`RTCOFS_BITS] == `RRTC_DALRM) & full_decoding;
+assign rrtc_ctrl_sel = cyc_i & stb_i & (adr_i[`RTCOFS_BITS] == `RRTC_CTRL) & full_decoding;
 
 //
 // Grouping of seperate fields into registers
@@ -250,7 +279,7 @@ always @(posedge clk_i or posedge rst_i)
 	else if (rrtc_ctrl[`RRTC_CTRL_EN])
 		rrtc_ctrl[`RRTC_CTRL_ALRM] <= #1 rrtc_ctrl[`RRTC_CTRL_ALRM] | alarm;
 `else
-assign rrtc_ctrl = 32'h80000000;	// RRTC_CTRL[EN] = 1
+assign rrtc_ctrl = `DEF_RRTC_CTRL;
 `endif
 
 //
@@ -280,7 +309,7 @@ always @(posedge clk_i or posedge rst_i)
 	else if (rrtc_talrm_sel && we_i)
 		rrtc_talrm <= #1 dat_i;
 `else
-assign rrtc_talrm = 32'h0;	// No alarms set
+assign rrtc_talrm = `DEF_RRTC_TALRM;
 `endif
 
 //
@@ -293,7 +322,7 @@ always @(posedge clk_i or posedge rst_i)
 	else if (rrtc_dalrm_sel && we_i)
 		rrtc_dalrm <= #1 dat_i[30:0];
 `else
-assign rrtc_dalrm = 31'h0;	// No alarms set
+assign rrtc_dalrm = `DEF_RRTC_DALRM;
 `endif
 
 //
@@ -604,12 +633,12 @@ assign inc_date_tc = rst_date_c;
 // Leap year calculation
 //
 assign leapyear =
-	({date_ty, date_y} == 8'h00 &				// xx00
-	 (( date_tc[0] & ~date_c[3] & date_c[1:0] == 2'b10) |	// 12xx, 16xx, 32xx ...
-	  (~date_tc[0] & date_c[1:0] == 2'b00 &			// 00xx, 04xx, 08xx, 20xx, 24xx ...
-	   (date_c[3:2] == 2'b01 | ~date_c[2])))) |
-	(~date_ty[0] & date_y[1:0] == 2'b00 & {date_ty, date_y} != 8'h00) | // xx04, xx08, xx24 ...
-	(date_ty[0] & date_y[1:0] == 2'b10);			// xx12, xx16, xx32 ...
+	(({date_ty, date_y} == 8'h00) &				// xx00
+	 (( date_tc[0] & ~date_c[3] & (date_c[1:0] == 2'b10)) |	// 12xx, 16xx, 32xx ...
+	  (~date_tc[0] & (date_c[1:0] == 2'b00) &		// 00xx, 04xx, 08xx, 20xx, 24xx ...
+	   ((date_c[3:2] == 2'b01) | ~date_c[2])))) |
+	(~date_ty[0] & (date_y[1:0] == 2'b00) & ({date_ty, date_y} != 8'h00)) | // xx04, xx08, xx24 ...
+	(date_ty[0] & (date_y[1:0] == 2'b10));			// xx12, xx16, xx32 ...
 
 
 `else
@@ -625,9 +654,7 @@ assign err_o = cyc_i & stb_i;
 //
 // Read RTC registers
 //
-`ifdef RTC_READREGS
 assign dat_o = {dw{1'b0}};
-`endif
 
 `endif
 
