@@ -1,0 +1,5 @@
+#!/bin/sh -f
+
+# nohup dc_shell -f top.scr | tee ../log/top.log
+dc_shell -f ../bin/top_rtc.scr > ../log/top_rtc.log
+mv command.log ../log
