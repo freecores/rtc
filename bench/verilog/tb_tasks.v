@@ -44,6 +44,9 @@
 // CVS Revision History
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/09/18 22:55:36  lampret
+// Changed rtc into rtc_top. Changed defines.v into rtc_defines.v. Fixed a bug with two defines for alarms.
+//
 // Revision 1.1  2001/08/21 12:53:10  lampret
 // Changed directory structure, uniquified defines and changed design's port names.
 //
@@ -71,8 +74,21 @@ integer nr_failed;
 //
 task failed;
 begin
+`ifdef RTC_VERBOSE
 	$display("FAILED !!!");
+`endif
 	nr_failed = nr_failed + 1;
+end
+endtask
+
+//
+// Display OK
+//
+task display_ok;
+begin
+`ifdef RTC_VERBOSE
+	$display(" OK");
+`endif
 end
 endtask
 
@@ -210,10 +226,12 @@ reg	[31:0] tmp;
 
 begin
 	tb_top.wb_master.rd(`RTC_RRTC_TIME<<2, tmp);
+`ifdef RTC_VERBOSE
 	showdow(tmp[`RTC_RRTC_TIME_DOW]);
 	$write(" %h%h:", tmp[`RTC_RRTC_TIME_TH], tmp[`RTC_RRTC_TIME_H]);
 	$write("%h%h:", tmp[`RTC_RRTC_TIME_TM], tmp[`RTC_RRTC_TIME_M]);
 	$write("%h%h:%h ", tmp[`RTC_RRTC_TIME_TS], tmp[`RTC_RRTC_TIME_S], tmp[`RTC_RRTC_TIME_TOS]);
+`endif
 end
 
 endtask
@@ -227,11 +245,13 @@ reg	[31:0] tmp;
 
 begin
 	tb_top.wb_master.rd(`RTC_RRTC_TALRM<<2, tmp);
+`ifdef RTC_VERBOSE
 	$write("TALRM: %b", tmp[31:27]);
 	showdow(tmp[`RTC_RRTC_TIME_DOW]);
 	$write(" %h%h:", tmp[`RTC_RRTC_TIME_TH], tmp[`RTC_RRTC_TIME_H]);
 	$write("%h%h:", tmp[`RTC_RRTC_TIME_TM], tmp[`RTC_RRTC_TIME_M]);
 	$write("%h%h:%h ", tmp[`RTC_RRTC_TIME_TS], tmp[`RTC_RRTC_TIME_S], tmp[`RTC_RRTC_TIME_TOS]);
+`endif
 end
 
 endtask
@@ -245,10 +265,12 @@ reg	[31:0] tmp;
 
 begin
 	tb_top.wb_master.rd(`RTC_RRTC_DATE<<2, tmp);
+`ifdef RTC_VERBOSE
 	$write("%h%h.", tmp[`RTC_RRTC_DATE_TD], tmp[`RTC_RRTC_DATE_D]);
 	$write("%h%h.", tmp[`RTC_RRTC_DATE_TM], tmp[`RTC_RRTC_DATE_M]);
 	$write("%h%h", tmp[`RTC_RRTC_DATE_TC], tmp[`RTC_RRTC_DATE_C]);
 	$write("%h%h ", tmp[`RTC_RRTC_DATE_TY], tmp[`RTC_RRTC_DATE_Y]);
+`endif
 end
 
 endtask
@@ -262,10 +284,12 @@ reg	[31:0] tmp;
 
 begin
 	tb_top.wb_master.rd(`RTC_RRTC_DATE<<2, tmp);
+`ifdef RTC_VERBOSE
 	$write("DALRM: %b %h%h.", tmp[30:27], tmp[`RTC_RRTC_DATE_TD], tmp[`RTC_RRTC_DATE_D]);
 	$write("%h%h.", tmp[`RTC_RRTC_DATE_TM], tmp[`RTC_RRTC_DATE_M]);
 	$write("%h%h", tmp[`RTC_RRTC_DATE_TC], tmp[`RTC_RRTC_DATE_C]);
 	$write("%h%h ", tmp[`RTC_RRTC_DATE_TY], tmp[`RTC_RRTC_DATE_Y]);
+`endif
 end
 
 endtask
@@ -388,8 +412,9 @@ integer l1;
 integer l2;
 reg	[31:0] ctrl;
 begin
+`ifdef RTC_VERBOSE
 	$write("  Testing control bit RTC_RRTC_CTRL[ECLK] ...");
-
+`endif
 	//
 	// Phase 1
 	//
@@ -462,7 +487,7 @@ begin
 	// Phase 2 should be 2x more than phase 1
 	//
 	if (l2 - l1 == l1)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 end
@@ -477,8 +502,9 @@ integer l2;
 integer l3;
 reg	[31:0] ctrl;
 begin
+`ifdef RTC_VERBOSE
 	$write("  Testing control bit RTC_RRTC_CTRL[EN] ...");
-
+`endif
 	//
 	// Phase 1
 	//
@@ -572,7 +598,7 @@ begin
 	// Phase 3 should be more than 1 or 2.
 	//
 	if (l1 && (l1 == l2) && (l3 > l2))
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 end
@@ -586,8 +612,9 @@ integer l1;
 integer l2;
 reg	[31:0] ctrl;
 begin
+`ifdef RTC_VERBOSE
 	$write("  Testing control bit RTC_RRTC_CTRL[DIV] ...");
-
+`endif
 	//
 	// Phase 1
 	//
@@ -653,7 +680,7 @@ begin
 	// Phase 1 should be 2500 and phase 2 should be 2500+1250.
 	//
 	if ((l2 - l1) == 1250)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 end
@@ -677,7 +704,9 @@ begin
 	// Check tenths of a second alarm
 	//
 
+`ifdef RTC_VERBOSE
 	$write("  Testing Alarm RTC_RRTC_TALRM[CTOS] ...");
+`endif
 
 	// Disable RTC
 	ctrl = 0;
@@ -708,7 +737,7 @@ begin
 
 	// Is alarm flag set?
 	if (a1 > a0)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 
@@ -718,7 +747,9 @@ begin
 	// Check seconds alarm
 	//
 
+`ifdef RTC_VERBOSE
 	$write("  Testing Alarm RTC_RRTC_TALRM[CS] ...");
+`endif
 
 	// Disable RTC
 	ctrl = 0;
@@ -749,7 +780,7 @@ begin
 
 	// Is alarm flag set?
 	if (a1 > a0)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 
@@ -759,7 +790,9 @@ begin
 	// Check minutes alarm
 	//
 
+`ifdef RTC_VERBOSE
 	$write("  Testing Alarm RTC_RRTC_TALRM[CM] ...");
+`endif
 
 	// Disable RTC
 	ctrl = 0;
@@ -790,7 +823,7 @@ begin
 
 	// Is alarm flag set?
 	if (a1 > a0)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 
@@ -800,7 +833,9 @@ begin
 	// Check hours alarm
 	//
 
+`ifdef RTC_VERBOSE
 	$write("  Testing Alarm RTC_RRTC_TALRM[CH] ...");
+`endif
 
 	// Disable RTC
 	ctrl = 0;
@@ -831,7 +866,7 @@ begin
 
 	// Is alarm flag set?
 	if (a1 > a0)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 
@@ -841,7 +876,9 @@ begin
 	// Check day of week alarm
 	//
 
+`ifdef RTC_VERBOSE
 	$write("  Testing Alarm RTC_RRTC_TALRM[CDOW] ...");
+`endif
 
 	// Disable RTC
 	ctrl = 0;
@@ -872,7 +909,7 @@ begin
 
 	// Is alarm flag set?
 	if (a1 > a0)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 
@@ -900,7 +937,9 @@ begin
 	// Check days alarm
 	//
 
+`ifdef RTC_VERBOSE
 	$write("  Testing Alarm RTC_RRTC_DALRM[CD] ...");
+`endif
 
 	// Disable RTC
 	ctrl = 0;
@@ -934,7 +973,7 @@ begin
 
 	// Is alarm flag set?
 	if (a1 > a0)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 
@@ -944,7 +983,9 @@ begin
 	// Check months alarm
 	//
 
+`ifdef RTC_VERBOSE
 	$write("  Testing Alarm RTC_RRTC_DALRM[CM] ...");
+`endif
 
 	// Disable RTC
 	ctrl = 0;
@@ -978,7 +1019,7 @@ begin
 
 	// Is alarm flag set?
 	if (a1 > a0)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 
@@ -988,7 +1029,9 @@ begin
 	// Check years alarm
 	//
 
+`ifdef RTC_VERBOSE
 	$write("  Testing Alarm RTC_RRTC_DALRM[CY] ...");
+`endif
 
 	// Disable RTC
 	ctrl = 0;
@@ -1022,7 +1065,7 @@ begin
 
 	// Is alarm flag set?
 	if (a1 > a0)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 
@@ -1032,7 +1075,9 @@ begin
 	// Check century alarm
 	//
 
+`ifdef RTC_VERBOSE
 	$write("  Testing Alarm RTC_RRTC_DALRM[CC] ...");
+`endif
 
 	// Disable RTC
 	ctrl = 0;
@@ -1066,7 +1111,7 @@ begin
 
 	// Is alarm flag set?
 	if (a1 > a0)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 
@@ -1094,7 +1139,9 @@ begin
 	// Set days alarm, disable ints
 	//
 
+`ifdef RTC_VERBOSE
 	$write("  Testing RTC_RRTC_CTRL[INTE] ...");
+`endif
 
 	// Disable RTC
 	ctrl = 0;
@@ -1128,7 +1175,7 @@ begin
 
 	// Is alarm flag set and interrupt cleared?
 	if ((a1 > a0) && !tb_top.rtc_top.wb_inta_o)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 
@@ -1138,7 +1185,9 @@ begin
 	// Set days alarm, enable ints
 	//
 
+`ifdef RTC_VERBOSE
 	$write("  Testing interrupt request assertion ...");
+`endif
 
 	// Disable RTC
 	ctrl = 0;
@@ -1172,7 +1221,7 @@ begin
 
 	// Is alarm flag set and interrupt asserted?
 	if ((a1 > a0) && tb_top.rtc_top.wb_inta_o)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 
@@ -1180,12 +1229,14 @@ begin
 	ctrl = 1 << `RTC_RRTC_CTRL_EN | 1 << `RTC_RRTC_CTRL_ECLK | 'h0;
 	#100 tb_top.wb_master.wr(`RTC_RRTC_CTRL<<2, ctrl, 4'hf);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing interrupt request negation ...");
+`endif
 
 	// Is interrupt request still asserted?
 	tb_top.wb_master.rd(`RTC_RRTC_CTRL<<2, ctrl);
 	if (!tb_top.rtc_top.wb_inta_o)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 end
@@ -1210,7 +1261,9 @@ begin
 	// Check RTC_RRTC_CTRL[BTOS]
 	//
 
+`ifdef RTC_VERBOSE
 	$write("  Testing RTC_RRTC_CTRL[BTOS] ...");
+`endif
 
 	// Disable RTC
 	ctrl = 0;
@@ -1241,7 +1294,7 @@ begin
 
 	// Is alarm flag set?
 	if (a1 > a0)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 end
@@ -1290,7 +1343,7 @@ begin
 	comp_time(etime[30:28], etime[27:20], etime[19:12], etime[11:4], etime[3:0], corr_time);
 	comp_date(edate[31:24], edate[23:16], edate[15:0], corr_date);
 	if (corr_time && corr_date)
-		$display(" OK");
+		display_ok;
 	else
 		failed;
 end
@@ -1303,55 +1356,89 @@ endtask
 task test_cases;
 begin
 
+`ifdef RTC_VERBOSE
 	$write("  Testing Y2K compliance: ");
+`endif
 	test_case('h7_23_30_00_0, 'h31_12_1999, 72000, 'h1_00_30_00_0, 'h01_01_2000);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing Y2K leap year compliance: ");
+`endif
 	test_case('h3_23_30_00_0, 'h28_02_2000, 72000, 'h4_00_30_00_0, 'h29_02_2000);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing 2001 leap year compliance: ");
+`endif
 	test_case('h4_23_30_00_0, 'h28_02_2001, 72000, 'h5_00_30_00_0, 'h01_03_2001);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing 2004 leap year compliance: ");
+`endif
 	test_case('h7_23_30_00_0, 'h28_02_2004, 72000, 'h1_00_30_00_0, 'h29_02_2004);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing 2100 leap year compliance: ");
+`endif
 	test_case('h1_23_30_00_0, 'h28_02_2100, 72000, 'h2_00_30_00_0, 'h01_03_2100);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing change from Jan to Feb: ");
+`endif
 	test_case('h1_23_45_00_0, 'h31_01_2000, 36000, 'h2_00_15_00_0, 'h01_02_2000);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing change from Mar to Apr: ");
+`endif
 	test_case('h1_23_45_00_0, 'h31_03_2000, 36000, 'h2_00_15_00_0, 'h01_04_2000);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing change from Apr to May: ");
+`endif
 	test_case('h1_23_45_00_0, 'h30_04_2000, 36000, 'h2_00_15_00_0, 'h01_05_2000);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing change from May to Jun: ");
+`endif
 	test_case('h1_23_45_00_0, 'h31_05_2000, 36000, 'h2_00_15_00_0, 'h01_06_2000);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing change from Jun to Jul: ");
+`endif
 	test_case('h1_23_45_00_0, 'h30_06_2000, 36000, 'h2_00_15_00_0, 'h01_07_2000);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing change from Jul to Aug: ");
+`endif
 	test_case('h1_23_45_00_0, 'h31_07_2000, 36000, 'h2_00_15_00_0, 'h01_08_2000);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing change from Aug to Sep: ");
+`endif
 	test_case('h1_23_45_00_0, 'h31_08_2000, 36000, 'h2_00_15_00_0, 'h01_09_2000);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing change from Sep to Oct: ");
+`endif
 	test_case('h1_23_45_00_0, 'h30_09_2000, 36000, 'h2_00_15_00_0, 'h01_10_2000);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing change from Oct to Nov: ");
+`endif
 	test_case('h1_23_45_00_0, 'h31_10_2000, 36000, 'h2_00_15_00_0, 'h01_11_2000);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing change from Nov to Dec: ");
+`endif
 	test_case('h1_23_45_00_0, 'h30_11_2000, 36000, 'h2_00_15_00_0, 'h01_12_2000);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing change from Dec to Jan: ");
+`endif
 	test_case('h1_23_45_00_0, 'h31_12_2000, 36000, 'h2_00_15_00_0, 'h01_01_2001);
 
+`ifdef RTC_VERBOSE
 	$write("  Testing change of a day: ");
+`endif
 	test_case('h1_12_34_56_7, 'h29_01_2002, 72000*24, 'h2_12_34_56_7, 'h30_01_2002);
 
 end
@@ -1371,26 +1458,35 @@ initial begin
 	$display("###");
 	$display("### RTC IP Core Verification ###");
 	$display("###");
+`ifdef RTC_VERBOSE
 	$display;
 	$display("I. Testing correct operation of RTC_RRTC_CTRL control bits");
 	$display;
+`endif
 	tb_tasks.test_btos;
 //	tb_tasks.test_eclk;
 	tb_tasks.test_en;
 	tb_tasks.test_div;
 	tb_tasks.test_inte_int;
+`ifdef RTC_VERBOSE
 	$display;
 	$display("II. Testing alarms ...");
 	$display;
+`endif
 	tb_tasks.test_talrm;
 	tb_tasks.test_dalrm;
+`ifdef RTC_VERBOSE
 	$display;
 	$display("III. Testing correct operation of time/date counters");
 	$display;
+`endif
 	tb_tasks.test_cases;
 	$display;
 	$display("###");
-	$display("### FAILED TESTS: %d ###", nr_failed);
+	if (nr_failed)
+		$display("### Status: FAILED (%d failed) ###", nr_failed);
+	else
+		$display("### Status: PASSED ###");
 	$display("###");
 	$display;
 	#10000;

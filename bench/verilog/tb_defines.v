@@ -45,6 +45,9 @@
 // CVS Revision History
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/09/18 22:55:36  lampret
+// Changed rtc into rtc_top. Changed defines.v into rtc_defines.v. Fixed a bug with two defines for alarms.
+//
 // Revision 1.1  2001/08/21 12:53:10  lampret
 // Changed directory structure, uniquified defines and changed design's port names.
 //
@@ -58,6 +61,11 @@
 // Added initial RTL and test benches. There are still some issues with these files.
 //
 //
+
+//
+// Define if you want verbose output during simulation
+//
+`define RTC_VERBOSE
 
 //
 // Define if you want test bench debugging information during simulation

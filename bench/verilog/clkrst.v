@@ -44,6 +44,9 @@
 // CVS Revision History
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/08/21 12:53:10  lampret
+// Changed directory structure, uniquified defines and changed design's port names.
+//
 // Revision 1.1  2001/06/05 07:45:41  lampret
 // Added initial RTL and test benches. There are still some issues with these files.
 //
@@ -91,8 +94,10 @@ integer 	i;
 begin
 	for (i = 2 * cycles; i; i = i - 1) begin
 		#4 rtc_clk = ~rtc_clk;
+`ifdef RTC_VERBOSE
 		if (i % 20000 == 19999)
 			$write(".");
+`endif
 	end
 end
 endtask
