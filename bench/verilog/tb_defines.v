@@ -45,6 +45,9 @@
 // CVS Revision History
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/08/21 12:53:10  lampret
+// Changed directory structure, uniquified defines and changed design's port names.
+//
 // Revision 1.3  2001/07/16 01:05:01  lampret
 // Fixed some bugs in test bench. Added comments to tb_defines.v
 //
@@ -64,4 +67,4 @@
 //
 // Define if you want VCD dump
 //
-//`define RTC_DUMP_VCD
+`define RTC_DUMP_VCD

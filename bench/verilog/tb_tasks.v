@@ -44,6 +44,9 @@
 // CVS Revision History
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/08/21 12:53:10  lampret
+// Changed directory structure, uniquified defines and changed design's port names.
+//
 // Revision 1.2  2001/07/16 01:05:01  lampret
 // Fixed some bugs in test bench. Added comments to tb_defines.v
 //
@@ -56,7 +59,7 @@
 `include "timescale.v"
 // synopsys translate_on
 
-`include "defines.v"
+`include "rtc_defines.v"
 `include "tb_defines.v"
 
 module tb_tasks;
@@ -568,7 +571,6 @@ begin
 	// Phase 1 and 2 should be equal and non-zero.
 	// Phase 3 should be more than 1 or 2.
 	//
-$display("xxxx", l1, l2, l3);
 	if (l1 && (l1 == l2) && (l3 > l2))
 		$display(" OK");
 	else
@@ -1125,7 +1127,7 @@ begin
 	a1 = ctrl[`RTC_RRTC_CTRL_ALRM];
 
 	// Is alarm flag set and interrupt cleared?
-	if ((a1 > a0) && !tb_top.rtc.wb_inta_o)
+	if ((a1 > a0) && !tb_top.rtc_top.wb_inta_o)
 		$display(" OK");
 	else
 		failed;
@@ -1169,7 +1171,7 @@ begin
 	a1 = ctrl[`RTC_RRTC_CTRL_ALRM];
 
 	// Is alarm flag set and interrupt asserted?
-	if ((a1 > a0) && tb_top.rtc.wb_inta_o)
+	if ((a1 > a0) && tb_top.rtc_top.wb_inta_o)
 		$display(" OK");
 	else
 		failed;
@@ -1182,7 +1184,7 @@ begin
 
 	// Is interrupt request still asserted?
 	tb_top.wb_master.rd(`RTC_RRTC_CTRL<<2, ctrl);
-	if (!tb_top.rtc.wb_inta_o)
+	if (!tb_top.rtc_top.wb_inta_o)
 		$display(" OK");
 	else
 		failed;
@@ -1242,7 +1244,6 @@ begin
 		$display(" OK");
 	else
 		failed;
-
 end
 
 endtask
@@ -1362,7 +1363,7 @@ endtask
 //
 initial begin
 `ifdef RTC_DUMP_VCD
-	$dumpfile("../sim/tb_top.vcd");
+	$dumpfile("../out/tb_top.vcd");
 	$dumpvars(3, tb_top);
 `endif
 	nr_failed = 0;

@@ -12,7 +12,7 @@
 #
 
 # Set simulation tool you are using (xl, ncsim, ncver)
-SIMTOOL=ncver
+SIMTOOL=ncsim
 
 # Set test bench top module(s)
 TB_TOP="tb_tasks"
