@@ -45,7 +45,10 @@
 // CVS Revision History
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/06/05 07:45:41  lampret
+// Added initial RTL and test benches. There are still some issues with these files.
+//
 //
 
-`define DEBUG
-`define DUMP_VCD
+//`define DEBUG
+//`define DUMP_VCD
