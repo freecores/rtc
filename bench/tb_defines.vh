@@ -45,10 +45,20 @@
 // CVS Revision History
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/06/05 08:10:47  lampret
+// Tests dont go through.
+//
 // Revision 1.1  2001/06/05 07:45:41  lampret
 // Added initial RTL and test benches. There are still some issues with these files.
 //
 //
 
+//
+// Define if you want test bench debugging information during simulation
+//
 //`define DEBUG
+
+//
+// Define if you want VCD dump
+//
 //`define DUMP_VCD

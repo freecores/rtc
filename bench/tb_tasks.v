@@ -44,6 +44,9 @@
 // CVS Revision History
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/06/05 07:45:41  lampret
+// Added initial RTL and test benches. There are still some issues with these files.
+//
 //
 
 `include "timescale.vh"
@@ -493,7 +496,7 @@ begin
 	tb_top.clkrst.gen_rtc_clk(5000);
 
 	// Get linear time
-	tb_tasks.getlineartime(l1);
+	#100 tb_tasks.getlineartime(l1);
 `ifdef DEBUG
 	$display;
 	tb_tasks.showtime;
@@ -559,6 +562,7 @@ begin
 	// Phase 1 and 2 should be equal and non-zero.
 	// Phase 3 should be more than 1 or 2.
 	//
+$display("xxxx", l1, l2, l3);
 	if (l1 && (l1 == l2) && (l3 > l2))
 		$display(" OK");
 	else
@@ -685,12 +689,12 @@ begin
 	#100 showctrl;
 `endif
 
-	// Advance time for 0.8 seconds, get alarm flag,
-	// advance 0.1 second and get alarm flag again
-	tb_top.clkrst.gen_rtc_clk(17);
+	// Advance time for 0.7 seconds, get alarm flag,
+	// advance 0.2 second and get alarm flag again
+	tb_top.clkrst.gen_rtc_clk(16);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a0 = ctrl[`RRTC_CTRL_ALRM];
-	tb_top.clkrst.gen_rtc_clk(1);
+	tb_top.clkrst.gen_rtc_clk(2);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a1 = ctrl[`RRTC_CTRL_ALRM];
 
@@ -726,12 +730,12 @@ begin
 	#100 showctrl;
 `endif
 
-	// Advance time for 9.9 seconds, get alarm flag,
-	// advance 0.1 second and get alarm flag again
-	tb_top.clkrst.gen_rtc_clk(199);
+	// Advance time for 9.8 seconds, get alarm flag,
+	// advance 0.2 second and get alarm flag again
+	tb_top.clkrst.gen_rtc_clk(198);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a0 = ctrl[`RRTC_CTRL_ALRM];
-	tb_top.clkrst.gen_rtc_clk(1);
+	tb_top.clkrst.gen_rtc_clk(2);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a1 = ctrl[`RRTC_CTRL_ALRM];
 
@@ -767,12 +771,12 @@ begin
 	#100 showctrl;
 `endif
 
-	// Advance time for 119.9 seconds, get alarm flag,
-	// advance 0.1 second and get alarm flag again
-	tb_top.clkrst.gen_rtc_clk(2399);
+	// Advance time for 119.8 seconds, get alarm flag,
+	// advance 0.2 second and get alarm flag again
+	tb_top.clkrst.gen_rtc_clk(2398);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a0 = ctrl[`RRTC_CTRL_ALRM];
-	tb_top.clkrst.gen_rtc_clk(1);
+	tb_top.clkrst.gen_rtc_clk(2);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a1 = ctrl[`RRTC_CTRL_ALRM];
 
@@ -808,12 +812,12 @@ begin
 	#100 showctrl;
 `endif
 
-	// Advance time for 119.9 seconds, get alarm flag,
-	// advance 0.1 second and get alarm flag again
-	tb_top.clkrst.gen_rtc_clk(2399);
+	// Advance time for 119.8 seconds, get alarm flag,
+	// advance 0.2 second and get alarm flag again
+	tb_top.clkrst.gen_rtc_clk(2398);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a0 = ctrl[`RRTC_CTRL_ALRM];
-	tb_top.clkrst.gen_rtc_clk(1);
+	tb_top.clkrst.gen_rtc_clk(2);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a1 = ctrl[`RRTC_CTRL_ALRM];
 
@@ -849,12 +853,12 @@ begin
 	#100 showctrl;
 `endif
 
-	// Advance time for 119.9 seconds, get alarm flag,
-	// advance 0.1 second and get alarm flag again
-	tb_top.clkrst.gen_rtc_clk(2399);
+	// Advance time for 119.8 seconds, get alarm flag,
+	// advance 0.2 second and get alarm flag again
+	tb_top.clkrst.gen_rtc_clk(2398);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a0 = ctrl[`RRTC_CTRL_ALRM];
-	tb_top.clkrst.gen_rtc_clk(1);
+	tb_top.clkrst.gen_rtc_clk(2);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a1 = ctrl[`RRTC_CTRL_ALRM];
 
@@ -911,8 +915,8 @@ begin
 	#100 showctrl;
 `endif
 
-	// Advance time for 119.9 seconds, get alarm flag,
-	// advance 0.1 second and get alarm flag again
+	// Advance time for 119.8 seconds, get alarm flag,
+	// advance 0.2 second and get alarm flag again
 	tb_top.clkrst.gen_rtc_clk(2398);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a0 = ctrl[`RRTC_CTRL_ALRM];
@@ -955,12 +959,12 @@ begin
 	#100 showctrl;
 `endif
 
-	// Advance time for 119.9 seconds, get alarm flag,
-	// advance 0.1 second and get alarm flag again
-	tb_top.clkrst.gen_rtc_clk(2399);
+	// Advance time for 119.8 seconds, get alarm flag,
+	// advance 0.2 second and get alarm flag again
+	tb_top.clkrst.gen_rtc_clk(2398);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a0 = ctrl[`RRTC_CTRL_ALRM];
-	tb_top.clkrst.gen_rtc_clk(1);
+	tb_top.clkrst.gen_rtc_clk(2);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a1 = ctrl[`RRTC_CTRL_ALRM];
 
@@ -999,8 +1003,8 @@ begin
 	#100 showctrl;
 `endif
 
-	// Advance time for 119.9 seconds, get alarm flag,
-	// advance 0.1 second and get alarm flag again
+	// Advance time for 119.8 seconds, get alarm flag,
+	// advance 0.2 second and get alarm flag again
 	tb_top.clkrst.gen_rtc_clk(2398);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a0 = ctrl[`RRTC_CTRL_ALRM];
@@ -1043,12 +1047,12 @@ begin
 	#100 showctrl;
 `endif
 
-	// Advance time for 119.9 seconds, get alarm flag,
-	// advance 0.1 second and get alarm flag again
-	tb_top.clkrst.gen_rtc_clk(2399);
+	// Advance time for 119.8 seconds, get alarm flag,
+	// advance 0.2 second and get alarm flag again
+	tb_top.clkrst.gen_rtc_clk(2398);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a0 = ctrl[`RRTC_CTRL_ALRM];
-	tb_top.clkrst.gen_rtc_clk(1);
+	tb_top.clkrst.gen_rtc_clk(2);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a1 = ctrl[`RRTC_CTRL_ALRM];
 
@@ -1149,16 +1153,16 @@ begin
 	#100 showctrl;
 `endif
 
-	// Advance time for 119.9 seconds, get alarm flag,
-	// advance 0.1 second and get alarm flag again
-	tb_top.clkrst.gen_rtc_clk(2399);
+	// Advance time for 119.8 seconds, get alarm flag,
+	// advance 0.2 second and get alarm flag again
+	tb_top.clkrst.gen_rtc_clk(2398);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a0 = ctrl[`RRTC_CTRL_ALRM];
-	tb_top.clkrst.gen_rtc_clk(1);
+	tb_top.clkrst.gen_rtc_clk(2);
 	tb_top.wb_master.rd(`RRTC_CTRL<<2, ctrl);
 	a1 = ctrl[`RRTC_CTRL_ALRM];
 
-	// Is alarm flag set and interrupt de-asserted?
+	// Is alarm flag set and interrupt asserted?
 	if ((a1 > a0) && tb_top.rtc.inta_o)
 		$display(" OK");
 	else
@@ -1299,10 +1303,10 @@ begin
 	test_case('h3_23_30_00_0, 'h28_02_2000, 72000, 'h4_00_30_00_0, 'h29_02_2000);
 
 	$write("  Testing 2001 leap year compliance: ");
-	test_case('h4_23_30_00_0, 'h28_02_2000, 72000, 'h5_00_30_00_0, 'h01_03_2000);
+	test_case('h4_23_30_00_0, 'h28_02_2001, 72000, 'h5_00_30_00_0, 'h01_03_2001);
 
 	$write("  Testing 2004 leap year compliance: ");
-	test_case('h7_23_30_00_0, 'h28_02_2000, 72000, 'h1_00_30_00_0, 'h29_02_2000);
+	test_case('h7_23_30_00_0, 'h28_02_2004, 72000, 'h1_00_30_00_0, 'h29_02_2004);
 
 	$write("  Testing 2100 leap year compliance: ");
 	test_case('h1_23_30_00_0, 'h28_02_2100, 72000, 'h2_00_30_00_0, 'h01_03_2100);
@@ -1353,7 +1357,7 @@ endtask
 initial begin
 `ifdef DUMP_VCD
 	$dumpfile("../sim/tb_top.vcd");
-	$dumpvars(0);
+	$dumpvars(3, tb_top);
 `endif
 	nr_failed = 0;
 	$display;
