@@ -46,6 +46,9 @@
 // CVS Revision History
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/09/18 22:55:39  lampret
+// Changed rtc into rtc_top. Changed defines.v into rtc_defines.v. Fixed a bug with two defines for alarms.
+//
 // Revision 1.2  2001/08/22 10:58:27  lampret
 // Changed synthesis translate_ to synopsys translate.
 //
@@ -229,13 +232,13 @@ reg	[dw-1:0]	wb_dat_o;	// Data out
 assign wb_ack_o = wb_cyc_i & wb_stb_i & !wb_err_o;
 `ifdef RTC_FULL_DECODE
 `ifdef RTC_STRICT_32BIT_ACCESS
-assign wb_err_o = wb_cyc_i & wb_stb_i & !full_decoding | (wb_sel_i != 4'b1111);
+assign wb_err_o = wb_cyc_i & wb_stb_i & (!full_decoding | (wb_sel_i != 4'b1111));
 `else
 assign wb_err_o = wb_cyc_i & wb_stb_i & !full_decoding;
 `endif
 `else
 `ifdef RTC_STRICT_32BIT_ACCESS
-assign wb_err_o = (wb_sel_i != 4'b1111);
+assign wb_err_o = wb_cyc_i & wb_stb_i & (wb_sel_i != 4'b1111);
 `else
 assign wb_err_o = 1'b0;
 `endif
