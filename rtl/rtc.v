@@ -46,6 +46,9 @@
 // CVS Revision History
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/16 01:08:45  lampret
+// Added additional parameters to make RTL more configurable. Added bunch of comments to defines.v
+//
 // Revision 1.1  2001/06/05 07:45:43  lampret
 // Added initial RTL and test benches. There are still some issues with these files.
 //
@@ -511,10 +514,10 @@ always @(posedge lo_clk)
 always @(adr_i or rrtc_time or rrtc_date or rrtc_talrm or rrtc_dalrm or rrtc_ctrl)
 	case (adr_i[`RTCOFS_BITS])	// synopsys full_case parallel_case
 `ifdef RTC_READREGS
-		`RRTC_TIME: dat_o <= rrtc_time;
-		`RRTC_DATE: dat_o <= rrtc_date;
-		`RRTC_TALRM: dat_o <= rrtc_talrm;
-		`RRTC_DALRM: dat_o <= {1'b0, rrtc_dalrm};
+		`RRTC_TIME: dat_o[dw-1:0] <= {{dw-27{1'b0}}, rrtc_time};
+		`RRTC_DATE: dat_o[dw-1:0] <= {{dw-27{1'b0}}, rrtc_date};
+		`RRTC_TALRM: dat_o[dw-1:0] <= rrtc_talrm;
+		`RRTC_DALRM: dat_o[dw-1:0] <= {{dw-31{1'b0}}, rrtc_dalrm};
 `endif
 		default: dat_o <= rrtc_ctrl;
 	endcase
